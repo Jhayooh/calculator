@@ -27,27 +27,38 @@ export default function MKeyboard() {
   const [result, setResult] = useState<number | null>(null);
   const [isChaotic, setIsChaotic] = useState(false);
 
+  // THIS IS THE KEY FIX: Store current state in a ref so PanResponder can access it
+  const stateRef = useRef({
+    firstNumber: "",
+    secondNumber: "",
+    operation: "",
+    result: null as number | null
+  });
+
+  // Update the ref whenever state changes
+  stateRef.current = { firstNumber, secondNumber, operation, result };
+
   const buttons = [
     "C", "+/-", "%", "÷",
-    "7","8","9","×",
-    "4","5","6","-",
-    "1","2","3","+",
-    "0",".","⌫","="
+    "7", "8", "9", "×",
+    "4", "5", "6", "-",
+    "1", "2", "3", "+",
+    "0", ".", "⌫", "="
   ];
 
   const getGridPosition = (index: number) => {
     const cols = 4;
-    const buttonWidth = 72;
-    const buttonMargin = 8;
+    const buttonWidth = 82;
+    const buttonMargin = 4;
     const totalButtonSize = buttonWidth + (buttonMargin * 2);
-    
+
     const row = Math.floor(index / cols);
     const col = index % cols;
-    
+
     const gridWidth = totalButtonSize * cols;
     const startX = (width - gridWidth) / 2;
     const startY = height * 0.38;
-    
+
     return {
       x: startX + (col * totalButtonSize),
       y: startY + (row * totalButtonSize)
@@ -55,113 +66,128 @@ export default function MKeyboard() {
   };
 
   const handleNumberPress = (value: string) => {
-    shuffleButtons();
-    
-    if (result !== null) {
+    const current = stateRef.current;
+
+    if (current.result !== null) {
       setResult(null);
+      setSecondNumber("");
+      setOperation("");
       setFirstNumber(value);
+      shuffleButtons();
       return;
     }
-    
-    if (value === "." && firstNumber.includes(".")) return;
-    
-    if (firstNumber.length < 10) {
-      setFirstNumber(firstNumber + value);
+
+    if (value === "." && current.firstNumber.includes(".")) {
+      shuffleButtons();
+      return;
+    }
+
+    if (current.firstNumber.length < 10) {
+      setFirstNumber(prev => prev + value);
+      shuffleButtons();
     }
   };
 
   const handleOperationPress = (value: string) => {
-    shuffleButtons();
-    
-    if (firstNumber === "" && result === null) return;
-    
-    if (result !== null) {
-      setSecondNumber(result.toString());
+    const current = stateRef.current;
+
+    if (current.firstNumber === "" && current.result === null) {
+      shuffleButtons();
+      return;
+    }
+
+    if (current.result !== null) {
+      setSecondNumber(current.result.toString());
       setResult(null);
-    } else if (operation && firstNumber) {
-      const a = parseFloat(secondNumber);
-      const b = parseFloat(firstNumber);
+      setOperation(value);
+    } else if (current.operation && current.firstNumber) {
+      const a = parseFloat(current.secondNumber);
+      const b = parseFloat(current.firstNumber);
       let output = 0;
-      
-      switch (operation) {
+
+      switch (current.operation) {
         case "+": output = a + b; break;
         case "-": output = a - b; break;
         case "×": output = a * b; break;
         case "÷": output = b === 0 ? NaN : a / b; break;
       }
-      
+
       setSecondNumber(output.toString());
       setFirstNumber("");
+      setOperation(value);
     } else {
-      setSecondNumber(firstNumber);
+      setSecondNumber(current.firstNumber);
       setFirstNumber("");
+      setOperation(value);
     }
-    
-    setOperation(value);
+
+    shuffleButtons();
   };
 
   const toggleSign = () => {
-    shuffleButtons();
-    if (firstNumber) {
-      setFirstNumber(firstNumber.startsWith("-") 
-        ? firstNumber.slice(1) 
-        : "-" + firstNumber
-      );
+    const current = stateRef.current;
+    if (current.firstNumber) {
+      setFirstNumber(prev => prev.startsWith("-") ? prev.slice(1) : "-" + prev);
     }
+    shuffleButtons();
   };
 
   const handlePercent = () => {
-    shuffleButtons();
-    if (firstNumber) {
-      setFirstNumber((parseFloat(firstNumber) / 100).toString());
+    const current = stateRef.current;
+    if (current.firstNumber) {
+      setFirstNumber(prev => (parseFloat(prev) / 100).toString());
     }
+    shuffleButtons();
   };
 
   const clear = () => {
-    shuffleButtons();
     setFirstNumber("");
     setSecondNumber("");
     setOperation("");
     setResult(null);
+    shuffleButtons();
   };
 
   const getResult = () => {
-    shuffleButtons();
+    const current = stateRef.current;
 
-    if (!operation || !secondNumber || !firstNumber) return;
+    if (!current.operation || !current.secondNumber || !current.firstNumber) {
+      shuffleButtons();
+      return;
+    }
 
-    const a = parseFloat(secondNumber);
-    const b = parseFloat(firstNumber);
+    const a = parseFloat(current.secondNumber);
+    const b = parseFloat(current.firstNumber);
 
-    if (isNaN(a) || isNaN(b)) return;
+    if (isNaN(a) || isNaN(b)) {
+      shuffleButtons();
+      return;
+    }
 
     let output = 0;
 
-    switch (operation) {
-      case "+":
-        output = a + b;
-        break;
-      case "-":
-        output = a - b;
-        break;
-      case "×":
-        output = a * b;
-        break;
-      case "÷":
-        output = b === 0 ? NaN : a / b;
-        break;
+    switch (current.operation) {
+      case "+": output = a + b; break;
+      case "-": output = a - b; break;
+      case "×": output = a * b; break;
+      case "÷": output = b === 0 ? NaN : a / b; break;
     }
 
     setResult(output);
     setFirstNumber("");
     setSecondNumber("");
     setOperation("");
+    shuffleButtons();
   };
 
   const handlePress = (label: string) => {
     if (!isNaN(Number(label))) return handleNumberPress(label);
     if (label === "C") return clear();
-    if (label === "⌫") return setFirstNumber(firstNumber.slice(0, -1));
+    if (label === "⌫") {
+      setFirstNumber(prev => prev.slice(0, -1));
+      shuffleButtons();
+      return;
+    }
     if (label === "=") return getResult();
     if (["+", "-", "×", "÷"].includes(label)) return handleOperationPress(label);
     if (label === ".") return handleNumberPress(".");
@@ -186,18 +212,17 @@ export default function MKeyboard() {
         onPanResponderGrant: () => {
           pos.stopAnimation();
           pos.extractOffset();
-          
           touchState.current[index] = { isDragging: false };
         },
 
         onPanResponderMove: (_, gesture) => {
           const state = touchState.current[index];
           if (!state) return;
-          
+
           const distance = Math.sqrt(
             Math.pow(gesture.dx, 2) + Math.pow(gesture.dy, 2)
           );
-          
+
           if (distance > 8) {
             state.isDragging = true;
             setIsChaotic(true);
@@ -209,11 +234,11 @@ export default function MKeyboard() {
           const state = touchState.current[index];
           pos.flattenOffset();
           keepInsideScreen(pos);
-          
+
           if (state && !state.isDragging) {
             handlePress(label);
           }
-          
+
           delete touchState.current[index];
         },
 
@@ -261,8 +286,9 @@ export default function MKeyboard() {
   const firstNumberDisplay = () => {
     if (result !== null) {
       return (
-        <Text style={[globalStyle.screenFirstNumber, { color: COLORS.result }]}>
-          {result}
+        <Text style={[globalStyle.screenFirstNumber, { color: COLORS.result, fontSize: 42 }]}>
+          hello world!
+          {/* {result} */}
         </Text>
       );
     }
@@ -276,40 +302,42 @@ export default function MKeyboard() {
 
   return (
     <View style={{ flex: 1, flexDirection: 'column' }}>
-      <View style={{ 
-        height: 120, 
-        width: "90%", 
-        // alignSelf: "center", 
-        // justifyContent: "flex-end", 
-        marginTop: 60 
+      <View style={{
+        height: 120,
+        width: "90%",
+        alignSelf: "center",
+        justifyContent: "flex-end",
+        marginTop: 100
       }}>
         <Text style={globalStyle.screenSecondNumber}>
-          {secondNumber}
-          <Text style={{ fontSize: 50, color: COLORS.blue }}>{operation}</Text>
+          {secondNumber && operation ? `${secondNumber} ${operation}` : " "}
         </Text>
         {firstNumberDisplay()}
       </View>
 
-      {animatedButtons.map((btn, index) => (
-        <Animated.View  
-          key={index}
-          style={[
-            { position: "absolute", transform: btn.pos.getTranslateTransform() },
-          ]}
-          {...btn.panResponder.panHandlers}
-        >
-          <MButton title={btn.label} onPress={() => {}} />
-        </Animated.View>
-      ))}
+      {animatedButtons.map((btn, index) => {
+        const isOperation = ["+", "-", "×", "÷", "="].includes(btn.label);
+        return (
+          <Animated.View
+            key={index}
+            style={[
+              { position: "absolute", transform: btn.pos.getTranslateTransform() },
+            ]}
+            {...btn.panResponder.panHandlers}
+          >
+            <MButton title={btn.label} onPress={() => { }} isBlue={isOperation && !isChaotic} />
+          </Animated.View>
+        )
+      })}
 
-      {isChaotic && (
+      {/* {isChaotic && (
         <View style={{ position: "absolute", bottom: 40, alignSelf: "center" }}>
           <MButton 
             title="⟲" 
             onPress={resetToGrid}
           />
         </View>
-      )}
+      )} */}
 
     </View>
   );
