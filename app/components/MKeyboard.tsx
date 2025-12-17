@@ -7,6 +7,7 @@ import {
   Text,
   View
 } from "react-native";
+import { ToWords } from 'to-words';
 import { COLORS } from "../style/colors";
 import { globalStyle } from "../style/globalStyles.styles";
 import { keepInsideScreen } from "../utils/helpers";
@@ -26,6 +27,8 @@ export default function MKeyboard() {
   const [operation, setOperation] = useState("");
   const [result, setResult] = useState<number | null>(null);
   const [isChaotic, setIsChaotic] = useState(false);
+
+  const toWords = new ToWords();
 
   // THIS IS THE KEY FIX: Store current state in a ref so PanResponder can access it
   const stateRef = useRef({
@@ -49,7 +52,7 @@ export default function MKeyboard() {
   const getGridPosition = (index: number) => {
     const cols = 4;
     const buttonWidth = 82;
-    const buttonMargin = 4;
+    const buttonMargin = 6;
     const totalButtonSize = buttonWidth + (buttonMargin * 2);
 
     const row = Math.floor(index / cols);
@@ -287,8 +290,7 @@ export default function MKeyboard() {
     if (result !== null) {
       return (
         <Text style={[globalStyle.screenFirstNumber, { color: COLORS.result, fontSize: 42 }]}>
-          hello world!
-          {/* {result} */}
+          {toWords.convert(result)}
         </Text>
       );
     }
