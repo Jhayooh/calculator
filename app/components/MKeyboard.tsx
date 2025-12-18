@@ -328,7 +328,7 @@ export default function MKeyboard() {
             ]}
             {...btn.panResponder.panHandlers}
           >
-            <MButton title={btn.label} onPress={() => { }} isBlue={isOperation && !isChaotic} />
+            <MButton title={btn.label} onPress={() => { }} isOrange={isOperation && !isChaotic} />
           </Animated.View>
         )
       })}

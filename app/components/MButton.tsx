@@ -8,21 +8,24 @@ interface MButtonProps {
     title: string;
     isBlue?: boolean;
     isGray?: boolean;
+    isOrange?: boolean;
 }
 
-export default function MButton({title, onPress, isBlue, isGray}:MButtonProps){
+export default function MButton({title, onPress, isBlue, isGray, isOrange}:MButtonProps){
     const theme = useContext(ThemeContext);
     return (
        <TouchableOpacity 
             style={
-                isBlue 
-                ? globalStyle.btnBlue 
-                : isGray 
-                ? globalStyle.btnGray 
-                : theme === "light" 
-                ? globalStyle.btnLight 
+                isBlue
+                ? globalStyle.btnBlue
+                : isGray
+                ? globalStyle.btnGray
+                : isOrange
+                ? globalStyle.btnOrange
+                : theme === "light"
+                ? globalStyle.btnLight
                 : globalStyle.btnDark
-            } 
+            }
             onPress={onPress}>
             <Text 
                style={

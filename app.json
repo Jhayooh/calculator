@@ -4,7 +4,7 @@
     "slug": "Clacutalor",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/MIcon.png",
     "scheme": "code",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -24,19 +24,19 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/MIcon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/MIcon.png",
+          "imageWidth": 140,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#F1F2F3",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#17171C"
           }
         }
       ]
