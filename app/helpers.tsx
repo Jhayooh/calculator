@@ -1,14 +1,30 @@
-
 type NumberStringMap = {
   value: number;
   str: string;
 };
 
 export function toWords(number: number): string {
-  if (!Number.isInteger(number) || number < 0) {
-    throw new Error("Input must be a positive integer");
+  if (!Number.isFinite(number)) {
+    throw new Error("Input must be a number");
   }
 
+  // ✅ negative
+  if (number < 0) {
+    return `Negative ${toWords(Math.abs(number))}`;
+  }
+
+  // ✅ decimal
+  if (!Number.isInteger(number)) {
+    const [intPart, decPart] = number.toString().split(".");
+    const decimalWords = decPart
+      .split("")
+      .map(d => toWords(Number(d)))
+      .join(" ");
+
+    return `${toWords(Number(intPart))} Point ${decimalWords}`;
+  }
+
+  // ✅ integer zero
   if (number === 0) return "Zero";
 
   const NS: NumberStringMap[] = [
@@ -57,11 +73,9 @@ export function toWords(number: number): string {
         const t = Math.floor(number / n.value);
         const d = number % n.value;
 
-        if (d > 0) {
-          return `${toWords(t)} ${n.str} ${toWords(d)}`;
-        } else {
-          return `${toWords(t)} ${n.str}`;
-        }
+        return d > 0
+          ? `${toWords(t)} ${n.str} ${toWords(d)}`
+          : `${toWords(t)} ${n.str}`;
       }
     }
   }
