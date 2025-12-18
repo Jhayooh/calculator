@@ -15,12 +15,13 @@
       "label": "Clacutalor",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/MIcon.png",
+        "backgroundImage": "./assets/images/MIcon.png",
+        "monochromeImage": "./assets/images/MIcon.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.Clacutalor"
     },
     "web": {
       "output": "static",
@@ -32,8 +33,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/MIcon.png",
-          "imageWidth": 140,
-          "resizeMode": "contain",
+          "imageWidth": 180,
           "backgroundColor": "#F1F2F3",
           "dark": {
             "backgroundColor": "#17171C"
@@ -44,6 +44,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2e896f16-40d5-41f8-8035-fce4e2124c0f"
+      }
     }
   }
 }
